@@ -1,0 +1,47 @@
+<!-create a file called page-your_unique_page.php inside the root of your theme make sure you create a wordpress page for "your_unique_page"->
+<?php get_header();?>
+
+<form  method="post" enctype="multipart/form-data">
+    <div class="form-group">
+        <label for="uploadfile">Select File: </label>
+        <input type="file" class="form-control" id="file" name="uploadfile">
+    </div>
+    <div class="form-group">
+        <button type="submit" name="btnsubmit" value="uploadfile">Submit</button>
+    </div>
+
+</form>
+<?php get_footer();?>
+
+
+<!-- PLACE IN functions.php wordpress file -->
+<?php
+
+if(isset($_FILES['uploadfile']['name'])){
+	if(! function_exists('wp_handle_upload')){
+		require_once(ABSPATH .'wp-admin/includes/file.php');
+	}
+	$fileupload =$_FILES['uploadfile'];
+	$upload_override = array('test_form'=>false);
+	$movefile = wp_handle_upload($fileupload,$upload_override);
+
+	if($movefile && !isset($movefile['error'])){
+		?>
+			<h3>File upload was successfully uploaded</h3>
+			<?php echo $movefile['url'];?>
+			<?php echo '<a href='. $movefile['url'] . '>Go to File</a>';?>
+		<?php
+	}else{
+		echo $movefile['error'];
+	}
+
+	$my_post = array(
+		'post_title'    =>  $movefile['url'],
+		'post_status'   => 'publish',
+	
+	  );
+	  wp_insert_post( $my_post );
+	// print_r($_FILES);
+	die;
+}
+?>
